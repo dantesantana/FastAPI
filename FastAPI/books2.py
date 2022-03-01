@@ -17,16 +17,43 @@ class Book(BaseModel):
     # integer must be between 0 & 100 inclusive
     rating: int = Field(gt=-1, lt=101)
 
+    # set default values using an inner-class
+    class Config:
+        schema_extra = {
+            "example": {
+                "id": "01a76169-858e-471f-9b97-575a86b4b588",
+                "title": "Computer Science Pro",
+                "author": "Codingwithroby",
+                "description": "A very nice description of a book",
+                "rating": 75
+            }
+        }
+
 
 BOOKS = []
 
 
-# READ all books
+# READ all books or a set number of "books_to_return"
 @app.get("/")
-async def read_all_books():
+async def read_all_books(books_to_return: Optional[int] = None):
     if len(BOOKS) < 1:
         create_books_no_api()
+    if books_to_return and len(BOOKS) >= books_to_return > 0:
+        i = 1
+        new_books = []
+        while i <= books_to_return:
+            new_books.append(BOOKS[i - 1])
+            i += 1
+        return new_books
     return BOOKS
+
+
+# READ a specified book
+@app.get("/book/{book_id}")
+async def read_book(book_id: UUID):
+    for x in BOOKS:
+        if x.id == book_id:
+            return x
 
 
 # CREATE a book
@@ -34,6 +61,18 @@ async def read_all_books():
 async def create_book(book: Book):
     BOOKS.append(book)
     return book
+
+
+# UPDATE a book
+@app.put("/{book_id}")
+async def update_book(book_id: UUID, book: Book):
+    counter = 0
+    for x in BOOKS:
+        counter += 1
+        if x.id == book_id:
+            BOOKS[counter - 1] = book
+            return BOOKS[counter - 1]
+
 
 # Initialize books, mainly for development purposes
 def create_books_no_api():
