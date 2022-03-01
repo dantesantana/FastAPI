@@ -1,0 +1,17 @@
+# Udemy - FastAPI
+- Introduction
+- Course Content
+- How to get the most of out this course
+- How to take this course
+- FastAPI Overview
+  - What is FastAPI?
+    - Python web-framework for building APIs
+    - "Fast" refers to performance/development
+    - makes it easy to create backend communications with security etc...
+    - uses OpenAPI standards & JSON schema
+    - official documentation https://fastapi.tiangolo.com
+  - Who uses FastAPI?
+    - Netflix
+    - Uber
+    - Microsoft
+  - Why do I need a web framework? (Can't I just write everything myself?) --> don't reinvent the wheel
