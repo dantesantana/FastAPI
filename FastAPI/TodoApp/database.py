@@ -3,10 +3,14 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 # connect to a sqlite database & create file "todos.db" storing our database
-SQLALCHEMY_DATABASE_URL = "sqlite:///./todos.db"
+# SQLALCHEMY_DATABASE_URL = "sqlite:///./todos.db"
+# postgresql
+SQLALCHEMY_DATABASE_URL = "postgresql://postgres:password@localhost/TodoApplicationDatabase"
 
 # create an engine, these arguments are specific to sqlite
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+# engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+# postgresql
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 # instance of database session
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

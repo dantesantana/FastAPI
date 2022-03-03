@@ -4,6 +4,7 @@ import models
 from database import engine, SessionLocal
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
+from auth import get_current_user, get_user_exception
 
 app = FastAPI()
 
@@ -33,12 +34,25 @@ async def read_all(db: Session = Depends(get_db)):
     return db.query(models.Todos).all()
 
 
+@app.get("/todos/user")
+async def read_all_by_user(user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    if user is None:
+        raise get_user_exception()
+    return db.query(models.Todos) \
+        .filter(models.Todos.owner_id == user.get("id")) \
+        .all()
+
+
 # READ a specific task
 @app.get("/todo/{todo_id}")
-async def read_todo(todo_id: int, db: Session = Depends(get_db)):
+async def read_todo(todo_id: int, user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    if user is None:
+        raise get_user_exception()
     # todo_id of path param needs to match the record of the id in the table
+    # we also check that the user matches the owner_id
     todo_model = db.query(models.Todos) \
         .filter(models.Todos.id == todo_id) \
+        .filter(models.Todos.owner_id == user.get("id")) \
         .first()
     if todo_model is not None:
         return todo_model
@@ -47,12 +61,15 @@ async def read_todo(todo_id: int, db: Session = Depends(get_db)):
 
 # CREATE a task
 @app.post("/")
-async def create_todo(todo: Todo, db: Session = Depends(get_db)):
+async def create_todo(todo: Todo, user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    if user is None:
+        raise get_user_exception()
     todo_model = models.Todos()
     todo_model.title = todo.title
     todo_model.description = todo.description
     todo_model.priority = todo.priority
     todo_model.complete = todo.complete
+    todo_model.owner_id = user.get("id")
 
     # place an object in the session, will be persisted to the database on the next flush operation
     db.add(todo_model)
@@ -63,13 +80,19 @@ async def create_todo(todo: Todo, db: Session = Depends(get_db)):
 
 # UPDATE an existing task
 @app.put("/{todo_id}")
-async def update_todo(todo_id: int, todo: Todo, db: Session = Depends(get_db)):
+async def update_todo(todo_id: int, todo: Todo, user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    if user is None:
+        raise get_user_exception()
+
     todo_model = db.query(models.Todos) \
         .filter(models.Todos.id == todo_id) \
+        .filter(models.Todos.owner_id == user.get("id")) \
         .first()
+
     # if we couldn't find a match to the requirements above
     if todo_model is None:
         raise http_exception()
+
     todo_model.title = todo.title
     todo_model.description = todo.description
     todo_model.priority = todo.priority
@@ -83,9 +106,12 @@ async def update_todo(todo_id: int, todo: Todo, db: Session = Depends(get_db)):
 
 # DELETE a task
 @app.delete("/{todo_id}")
-async def delete_todo(todo_id: int, db: Session = Depends(get_db)):
+async def delete_todo(todo_id: int, user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    if user is None:
+        raise get_user_exception()
     todo_model = db.query(models.Todos) \
         .filter(models.Todos.id == todo_id) \
+        .filter(models.Todos.owner_id == user.get("id")) \
         .first()
     if todo_model is None:
         raise http_exception()
