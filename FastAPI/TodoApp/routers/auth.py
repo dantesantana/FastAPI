@@ -1,4 +1,5 @@
 import sys
+
 # allows us to import from the parent directory
 sys.path.append("..")
 
@@ -32,7 +33,11 @@ models.Base.metadata.create_all(bind=engine)
 # extract data from authorization header
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="token")
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/auth",
+    tags=["auth"],
+    responses={401: {"user": "Not authorized"}}
+)
 
 
 def get_db():
