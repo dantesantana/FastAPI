@@ -3,13 +3,16 @@ import sys
 sys.path.append("..")
 
 from typing import Optional
-from fastapi import Depends, HTTPException, APIRouter
+from fastapi import Depends, HTTPException, APIRouter, Request
 import models
 from database import engine, SessionLocal
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 # .auth means looks for auth in the same directory
 from .auth import get_current_user, get_user_exception
+
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 
 router = APIRouter(
     prefix="/todos",
@@ -18,6 +21,8 @@ router = APIRouter(
 )
 
 models.Base.metadata.create_all(bind=engine)
+
+templates = Jinja2Templates(directory="templates")
 
 
 # get database --> create a session of our database then
@@ -35,6 +40,11 @@ class Todo(BaseModel):
     description: Optional[str]
     priority: int = Field(gt=0, lt=6, description="The priority must be between 1-5")
     complete: bool
+
+
+@router.get("/test")
+async def test(request: Request):
+    return templates.TemplateResponse("home.html", {"request": request})
 
 
 # READ all todos with dependencies i.e. AFTER the get_db() function is executed successfully
