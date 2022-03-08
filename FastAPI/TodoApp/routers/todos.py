@@ -44,7 +44,7 @@ class Todo(BaseModel):
 
 @router.get("/test")
 async def test(request: Request):
-    return templates.TemplateResponse("home.html", {"request": request})
+    return templates.TemplateResponse("add-todo.html", {"request": request})
 
 
 # READ all todos with dependencies i.e. AFTER the get_db() function is executed successfully
