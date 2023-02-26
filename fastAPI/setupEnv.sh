@@ -4,4 +4,4 @@ rm -fr pythonenv __pycache__
 python3 -m venv pythonenv
 . pythonenv/bin/activate
 python3 -m pip install --upgrade pip
-# pip install -r requirements.txt
+pip install -r requirements.txt
