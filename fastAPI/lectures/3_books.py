@@ -42,6 +42,9 @@ async def read_all_books(skip_book: Optional[str] = None):
 async def read_book(book_name: str):
     return BOOKS[book_name]
 
+@app.get('/assignment/')
+async def read_book_assignment(book_name: str):
+    return BOOKS[book_name]
 
 # Using query parameters to create books
 @app.post('/')
@@ -66,6 +69,12 @@ async def update_book(book_name: str, book_title: str, book_author: str):
     book_information = {'title': book_title, 'author': book_author}
     BOOKS[book_name] = book_information
     return book_information
+
+
+@app.delete('/assignment/')
+async def delete_book_assignment(book_name):
+    del BOOKS[book_name]
+    return f'Book {book_name} deleted.'
 
 # # enumerations in a path parameter, this provides a list of options in the swagger docs
 # @app.get('/directions/{direction_name}')
